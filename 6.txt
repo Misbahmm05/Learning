@@ -1,0 +1,86 @@
+Practical 6: Install Docker and Deploy a Two-Page E-commerce Website
+
+2. Step-by-step procedure
+These commands are for Ubuntu or WSL with Docker installed.
+Step 1: Install Docker
+Follow the official Docker installation guide.
+
+Verify:
+docker --version
+docker run hello-world
+
+
+If Docker requires elevated permissions, prefix commands with sudo.
+Step 2: Create the website directory
+mkdir ecommerce
+cd ecommerce
+
+
+Step 3: Create the first page
+nano index.html
+
+
+Enter:
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-commerce Home</title>
+</head>
+<body>
+    <h1>Welcome to My E-commerce Store</h1>
+    <p>Buy your favourite products.</p>
+    <a href="products.html">View Products</a>
+</body>
+</html>
+
+
+Step 4: Create the second page
+nano products.html
+
+
+Enter:
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Products</title>
+</head>
+<body>
+    <h1>Our Products</h1>
+    <p>Product 1 - ₹500</p>
+    <p>Product 2 - ₹800</p>
+    <a href="index.html">Back to Home</a>
+</body>
+</html>
+
+
+Step 5: Create the Dockerfile
+nano Dockerfile
+
+
+Enter:
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+COPY products.html /usr/share/nginx/html/products.html
+EXPOSE 80
+
+
+Step 6: Build the Docker image
+Run this in the directory containing the Dockerfile:
+docker build -t ecommerce-app .
+
+
+Step 7: Run the container
+docker run -d --name ecommerce-container -p 8080:80 ecommerce-app
+
+
+Step 8: Verify the application
+docker ps
+curl http://localhost:8080
+curl http://localhost:8080/products.html
+
+
+Alternatively, open these URLs in your browser:
+- http://localhost:8080
+- http://localhost:8080/products.html
+Step 9: Stop the container
+docker stop ecommerce-container

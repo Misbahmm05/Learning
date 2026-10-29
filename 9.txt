@@ -1,0 +1,75 @@
+Practical 9: Install Airflow and Create a DAG for Every Wednesday at 9:30 AM
+
+2. Step-by-step procedure
+These commands are for Ubuntu or WSL. The example uses Python 3.11 and Airflow 2.10.5 for a reproducible lab setup.
+Step 1: Install Python and supporting tools
+sudo apt update
+sudo apt install python3.11 python3.11-venv python3-pip -y
+
+
+If Python 3.11 is unavailable in your Ubuntu release, install a supported Python version and use the matching Airflow constraints file.
+Step 2: Create a virtual environment
+python3.11 -m venv ~/airflow311
+source ~/airflow311/bin/activate
+
+pip install --upgrade pip
+
+
+Step 3: Install Airflow
+AIRFLOW_VERSION=2.10.5
+PYTHON_VERSION=3.11
+
+pip install "apache-airflow==${AIRFLOW_VERSION}" \
+  --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
+
+
+Verify:
+airflow version
+
+
+Step 4: Initialize Airflow
+export AIRFLOW_HOME=~/airflow
+airflow db migrate
+
+
+Create a login user:
+airflow users create \
+  --username admin \
+  --firstname Admin \
+  --lastname User \
+  --role Admin \
+  --email admin@example.com \
+  --password Admin123
+
+
+Use a stronger password outside a disposable lab.
+Step 5: Create the DAG file
+Create the DAG directory:
+mkdir -p ~/airflow/dags
+nano ~/airflow/dags/datetime_dag.py
+
+
+Enter:
+from datetime import datetimefrom airflow import DAGfrom airflow.operators.python import PythonOperatordef display_datetime():    print("Current date and time:", datetime.now())with DAG(    dag_id="datetime_dag",    start_date=datetime(2026, 1, 1),    schedule="30 9 * * 3",    catchup=False,    tags=["practical"]) as dag:    show_time = PythonOperator(        task_id="display_date_time",        python_callable=display_datetime    )
+
+
+
+The cron expression 30 9 * * 3 means 9:30 AM every Wednesday. Configure Airflow's timezone to match the exam requirement; the default may be UTC rather than India Standard Time.
+Step 6: Start the Airflow webserver
+Open a terminal:
+source ~/airflow311/bin/activate
+export AIRFLOW_HOME=~/airflow
+airflow webserver --port 8080
+
+
+Step 7: Start the scheduler
+Open a second terminal:
+source ~/airflow311/bin/activate
+export AIRFLOW_HOME=~/airflow
+airflow scheduler
+
+
+Step 8: Open Airflow
+Visit http://localhost:8080 and log in with the account you created.
+
+Find datetime_dag, enable it, and inspect the task graph and logs. You can trigger it manually for testing rather than waiting until Wednesday.

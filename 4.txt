@@ -1,0 +1,46 @@
+Practical 4: AWS Lambda to Store Registration Form Data in DynamoDB
+
+2. Step-by-step procedure
+Step 1: Create a DynamoDB table
+1. Open the DynamoDB Console.
+2. Click Create table.
+3. Table name: Registration
+4. Partition key: email
+5. Key type: String
+6. Click Create table and wait until the table is active.
+Step 2: Create a Lambda function
+1. Open the Lambda Console.
+2. Click Create function.
+3. Select Author from scratch.
+4. Function name: RegistrationFunction
+5. Runtime: Python 3.12, if available.
+6. Create the function.
+Step 3: Give Lambda DynamoDB permission
+1. Open the Lambda function.
+2. Go to Configuration → Permissions.
+3. Click the execution role.
+4. In IAM, choose Add permissions → Attach policies.
+5. Attach AmazonDynamoDBFullAccess for a quick lab demonstration, or preferably a custom policy allowing only dynamodb:PutItem on the Registration table.
+6. Return to Lambda.
+Use least-privilege permissions for real applications.
+Step 4: Write the Lambda code
+Under the Code tab, replace the default code with:
+import jsonimport boto3dynamodb = boto3.resource('dynamodb')table = dynamodb.Table('Registration')def lambda_handler(event, context):    data = json.loads(event['body']) if 'body' in event else event    table.put_item(Item={        'email': data['email'],        'name': data['name'],        'phone': data['phone']    })    return {        'statusCode': 200,        'headers': {            'Content-Type': 'application/json'        },        'body': json.dumps({            'message': 'Registration successful'        })    }
+
+
+
+Click Deploy.
+
+The code expects email, name, and phone to be supplied by the registration form. If your examiner provides form code, use its actual field names and request format.
+Step 5: Test the Lambda function
+Click Test, create a test event, and enter:
+{
+  "email": "student@example.com",
+  "name": "Student",
+  "phone": "9876543210"
+}
+
+
+Click Test.
+Step 6: Verify the database
+Open DynamoDB → Registration → Explore table items → Run.

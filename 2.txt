@@ -1,0 +1,61 @@
+Practical 2: Install Git and Demonstrate Git Commands
+
+2. Step-by-step procedure
+Step 1: Install Git
+Download and install Git from git-scm.com.
+
+Verify the installation:
+git --version
+
+
+Step 2: Configure Git
+git config --global user.name "Your Name"
+git config --global user.email "your-email@example.com"
+
+
+Step 3: Initialize a repository
+mkdir GitDemo
+cd GitDemo
+git init
+
+
+Expected: Git initializes an empty repository.
+Step 4: Add and commit files
+echo "Hello DevOps" > file.txt
+git status
+git add file.txt
+git commit -m "First commit"
+
+
+Step 5: Demonstrate git diff
+echo "Second line" >> file.txt
+git diff
+
+
+The command displays the changes not yet staged.
+
+To stage and commit the change:
+git add file.txt
+git diff --cached
+git commit -m "Update file"
+
+
+Step 6: Demonstrate branching and merging
+git branch feature
+git switch feature
+echo "Feature work" > feature.txt
+git add .
+git commit -m "Add feature"
+git switch main
+git merge feature
+
+
+If your initial branch is named master, use git switch master instead.
+Step 7: Demonstrate push and pull
+Create an empty GitHub repository first, then connect it:
+git remote add origin https://github.com/YOUR_USERNAME/GitDemo.git
+git push -u origin main
+git pull origin main
+
+
+If you used master as your branch, replace main with master.

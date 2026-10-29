@@ -1,0 +1,70 @@
+Practical 3: Jenkins Continuous Integration Using a Remote Jenkinsfile
+
+2. Step-by-step procedure
+Step 1: Install Java and Jenkins
+On Ubuntu or WSL, install Java:
+sudo apt update
+sudo apt install fontconfig openjdk-21-jre -y
+java -version
+
+
+Install Jenkins by following the official instructions for Ubuntu: Jenkins installation guide.
+
+Start Jenkins:
+sudo systemctl enable --now jenkins
+sudo systemctl status jenkins
+
+
+Open Jenkins at http://localhost:8080.
+
+Retrieve the initial password if required:
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+Complete the setup wizard and install suggested plugins.
+Step 2: Create a GitHub repository
+Create a repository named JenkinsDemo.
+
+Add a file named Jenkinsfile with this code:
+pipeline {
+    agent any
+
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building application'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing application'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deployment completed'
+            }
+        }
+    }
+}
+
+
+Commit and push the file to GitHub.
+Step 3: Configure Jenkins
+1. Click New Item.
+2. Enter RemotePipeline.
+3. Select Pipeline and click OK.
+4. Under Pipeline, select Pipeline script from SCM.
+5. Choose Git.
+6. Enter the repository URL.
+7. Set the branch to */main.
+8. Set the script path to Jenkinsfile.
+9. Click Save.
+10. Click Build Now.
+The pollSCM('H/5 * * * *') trigger checks for repository changes approximately every five minutes.

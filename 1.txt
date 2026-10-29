@@ -1,0 +1,33 @@
+Practical 1: Agile Project Lifecycle Using Jira, GitHub and AWS
+
+1. Open Jira and create an account.
+2. Create a project using the Scrum template.
+3. Create a few issues, such as Design Homepage, Create Login Page, and Test Application.
+4. Create a sprint, add issues, and start the sprint.
+5. Open GitHub and create a repository named ecommerce.
+6. On your computer, install Git from Git downloads and run:
+git config --global user.name "Your Name"
+git config --global user.email "your-email@example.com"
+
+mkdir ecommerce
+cd ecommerce
+git init
+
+echo "<h1>E-commerce Home</h1>" > index.html
+git add .
+git commit -m "Create homepage"
+
+
+7. Connect the local repository to your GitHub repository:
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/ecommerce.git
+git push -u origin main
+
+
+Replace YOUR_USERNAME with your GitHub username.
+8. To connect Jira and GitHub, open Jira project settings or Apps, find the GitHub integration, and follow the authorization instructions. Availability depends on your Jira setup.
+9. For AWS integration, sign in to AWS Console and create or use an EC2 instance to host the application. Follow your institution's AWS access and deployment requirements.
+3. Expected output
+- Jira displays your project, issues, and sprint board.
+- GitHub displays the committed index.html.
+- AWS hosts the deployed application when deployment is completed.

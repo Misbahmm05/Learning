@@ -1,0 +1,133 @@
+Practical 10: Jenkins Pipeline Using a Remote GitHub Jenkinsfile and Docker Deployment
+
+2. Step-by-step procedure
+Step 1: Install Jenkins
+If you have already completed Practical 3, reuse that Jenkins installation.
+
+Verify Jenkins is running:
+sudo systemctl status jenkins
+
+
+Open http://localhost:8080.
+Step 2: Install Docker
+Follow the official Docker installation guide.
+
+Verify:
+docker --version
+sudo docker run hello-world
+
+
+Jenkins must be able to access Docker. For a lab environment, you can configure the Jenkins user's Docker permissions:
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+
+
+This grants the Jenkins account substantial privileges on the host. Use an isolated lab machine and follow your institution's security requirements.
+Step 3: Create the GitHub repository
+Create a repository named JenkinsDockerDemo.
+
+Add these three files.
+
+File 1: index.html
+<html>
+<body>
+    <h1>Welcome to My E-commerce Store</h1>
+    <a href="products.html">View Products</a>
+</body>
+</html>
+
+
+File 2: products.html
+<html>
+<body>
+    <h1>Our Products</h1>
+    <p>Laptop - ₹50000</p>
+    <p>Mobile - ₹20000</p>
+    <a href="index.html">Home</a>
+</body>
+</html>
+
+
+File 3: Dockerfile
+FROM nginx:alpine
+
+COPY index.html /usr/share/nginx/html/index.html
+COPY products.html /usr/share/nginx/html/products.html
+
+EXPOSE 80
+
+
+Step 4: Create the remote Jenkinsfile
+Create a file named Jenkinsfile in the same GitHub repository.
+pipeline {
+    agent any
+
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t ecommerce-app .'
+            }
+        }
+
+        stage('Deploy Using Docker') {
+            steps {
+                sh '''
+                    docker rm -f ecommerce-container || true
+                    docker run -d \
+                        --name ecommerce-container \
+                        -p 8081:80 \
+                        ecommerce-app
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh 'docker ps'
+            }
+        }
+    }
+}
+
+
+Commit and push all four files to the GitHub repository.
+
+The polling trigger checks for repository changes approximately every five minutes. It does not mean the deployment itself runs every five minutes; a new build starts when Jenkins detects a change.
+Step 5: Configure the Jenkins pipeline
+1. Open Jenkins.
+2. Click New Item.
+3. Enter DockerDeploymentPipeline.
+4. Select Pipeline and click OK.
+5. Find the Pipeline section.
+6. Select Pipeline script from SCM.
+7. Select Git as the SCM.
+8. Enter the GitHub repository URL:
+https://github.com/YOUR_USERNAME/JenkinsDockerDemo.git
+
+
+9. Set the branch to */main.
+10. Set the script path to Jenkinsfile.
+11. Click Save.
+If the repository is private, configure appropriate GitHub credentials in Jenkins.
+Step 6: Run the pipeline
+Click Build Now.
+
+Open the build and select Console Output to monitor each stage.
+Step 7: Verify the deployment
+On the machine where the Docker container is running, execute:
+docker ps
+curl http://localhost:8081
+curl http://localhost:8081/products.html
+
+
+Open http://localhost:8081 in the browser if Jenkins and Docker are running on your local machine.

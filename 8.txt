@@ -1,0 +1,39 @@
+Practical 8: Lambda Function to Store Date and Time in DynamoDB
+
+2. Step-by-step procedure
+Step 1: Create a DynamoDB table
+1. Open DynamoDB Console.
+2. Click Create table.
+3. Table name: DateTimeLogs
+4. Partition key: id
+5. Type: String
+6. Click Create table.
+Step 2: Create the Lambda function
+1. Open Lambda Console.
+2. Click Create function.
+3. Select Author from scratch.
+4. Function name: DateTimeLogger.
+5. Choose Python 3.12 if available.
+6. Create the function.
+Step 3: Configure IAM permissions
+Open Configuration → Permissions → Execution role.
+
+Attach a policy that permits dynamodb:PutItem on the DateTimeLogs table. A custom least-privilege policy is preferable to full DynamoDB access.
+Step 4: Write the Lambda code
+In the Code editor, enter:
+import boto3import jsonimport uuidfrom datetime import datetime, timezonedynamodb = boto3.resource('dynamodb')table = dynamodb.Table('DateTimeLogs')def lambda_handler(event, context):    now = datetime.now(timezone.utc).isoformat()    item = {        'id': str(uuid.uuid4()),        'datetime': now    }    table.put_item(Item=item)    return {        'statusCode': 200,        'body': json.dumps({            'message': 'Date and time stored successfully',            'datetime': now        })    }
+
+
+
+Click Deploy.
+Step 5: Test the function
+1. Click Test.
+2. Create a test event with an empty JSON object:
+{}
+
+
+3. Click Test again to invoke the function.
+Step 6: Verify DynamoDB
+Open DynamoDB → DateTimeLogs → Explore table items → Run.
+
+Each successful invocation should create a new item because the code generates a unique ID.

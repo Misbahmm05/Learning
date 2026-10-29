@@ -1,0 +1,73 @@
+Practical 5: Ansible Software Provisioning and Configuration on Localhost
+
+2. Step-by-step procedure
+Step 1: Install Ansible
+On Ubuntu or WSL:
+sudo apt update
+sudo apt install ansible -y
+ansible --version
+
+
+Step 2: Create a working directory
+mkdir ansible-demo
+cd ansible-demo
+
+
+Step 3: Create an inventory file
+nano inventory.ini
+
+
+Enter:
+[local]
+localhost ansible_connection=local
+
+
+Save the file using Ctrl+O, Enter, then Ctrl+X.
+Step 4: Test the connection
+ansible -i inventory.ini local -m ping
+
+
+Expected result:
+localhost | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+
+Step 5: Create a playbook
+nano setup.yml
+
+
+Enter:
+---
+- name: Configure localhost
+  hosts: local
+  become: true
+
+  tasks:
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: Start nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Create a web page
+      ansible.builtin.copy:
+        dest: /var/www/html/index.html
+        content: "<h1>Welcome to Ansible</h1>"
+        mode: "0644"
+
+
+Step 6: Execute the playbook
+ansible-playbook -i inventory.ini setup.yml --ask-become-pass
+
+
+Enter your Ubuntu user's password if prompted for privilege escalation.
+Step 7: Verify the web server
+curl http://localhost
